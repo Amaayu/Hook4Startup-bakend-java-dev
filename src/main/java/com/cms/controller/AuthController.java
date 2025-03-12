@@ -60,7 +60,7 @@ public class  AuthController {
         // ✅ Secure cookie response send karo
         ResponseCookie cookie = ResponseCookie.from("session_token", newToken)
                 .httpOnly(true)
-                .secure(false)  // ✅ HTTPS ke liye `true`
+                .secure(true)  // ✅ HTTPS ke liye `true`
                 .sameSite("None")
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60)
@@ -98,7 +98,7 @@ public class  AuthController {
         // ✅ Secure cookie response send karo
         ResponseCookie cookie = ResponseCookie.from("session_token", newToken)
                 .httpOnly(true)
-                .secure(false)  // ✅ HTTPS ke liye `true`
+                .secure(true)  // ✅ HTTPS ke liye `true`
                 .sameSite("None")
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60)
