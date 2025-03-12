@@ -11,3 +11,8 @@ spring:
 application:
   name: hook4startup
 
+logging:
+  level:
+    org:
+      springframework:
+        security=DEBUG:

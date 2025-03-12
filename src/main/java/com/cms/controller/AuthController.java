@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 import java.util.Optional;
 
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true") // ✅ Frontend ke liye CORS allow
+
 @RestController
 @RequestMapping("/auth") // ✅ Public APIs
 public class  AuthController {
@@ -57,13 +57,16 @@ public class  AuthController {
         // ✅ Naya token generate karo
         String newToken = tokenService.generateToken(username);
 
-// ✅ Properly set cookie using javax.servlet.http.Cookie
-        Cookie cookie = new Cookie("session_token", newToken);
-        cookie.setHttpOnly(true); // ✅ Security ke liye
-        cookie.setSecure(false);  // ✅ HTTPS me true karo
-        cookie.setMaxAge(7 * 24 * 60 * 60); // ✅ 7 din ka expiry time
+        // ✅ Secure cookie response send karo
+        ResponseCookie cookie = ResponseCookie.from("session_token", newToken)
+                .httpOnly(true)
+                .secure(false)  // ✅ HTTPS ke liye `true`
+                .sameSite("None")
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        response.addCookie(cookie);
         return ResponseEntity.ok("New session started");
 
     }
@@ -92,13 +95,16 @@ public class  AuthController {
         // ✅ Naya token generate karo
         String newToken_naya = tokenService.generateToken(username);
 
-// ✅ Properly set cookie using javax.servlet.http.Cookie
-        Cookie cookie = new Cookie("session_token", newToken_naya);
-        cookie.setHttpOnly(true); // ✅ Security ke liye
-        cookie.setSecure(false);  // ✅ HTTPS me true karo
-        cookie.setMaxAge(7 * 24 * 60 * 60); // ✅ 7 din ka expiry time
+        // ✅ Secure cookie response send karo
+        ResponseCookie cookie = ResponseCookie.from("session_token", newToken)
+                .httpOnly(true)
+                .secure(false)  // ✅ HTTPS ke liye `true`
+                .sameSite("None")
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        response.addCookie(cookie);
         return ResponseEntity.ok("New session started");
 
     }
