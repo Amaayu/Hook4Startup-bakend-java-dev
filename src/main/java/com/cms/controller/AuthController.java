@@ -77,16 +77,19 @@ public class  AuthController {
         // ✅ Fix: JSON request se data le rahe hain
         String username = requestData.get("username");
         String password = requestData.get("password");
+        String email = requestData.get("email");
 
         if (username == null || password == null) {
             return ResponseEntity.status(400).body("Username or password is missing");
         }
+        System.out.println(email);
 
         if (userRepository.findByUsername(username).isPresent()) {
             return ResponseEntity.status(400).body("User already exists");
         }
 
-        User newUser = new User(username, password);
+        User newUser = new User(username, password , email);
+        System.out.println(newUser);
         userRepository.save(newUser);
 
         // ✅ New user ke liye session token generate karo

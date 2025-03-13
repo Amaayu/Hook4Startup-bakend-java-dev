@@ -50,9 +50,10 @@ public class User {
 
     private boolean makeProfileStatus;
 
-    public User(String username, String password) {
+    public User(String username, String password , String email) {
         this.username = username;
         this.password = password;
+        this.email = email;
     }
 
     @Override
