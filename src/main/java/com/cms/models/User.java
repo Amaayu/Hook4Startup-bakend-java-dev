@@ -7,6 +7,7 @@ import lombok.NonNull;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,7 @@ public class User {
     private String id;
 
     @NonNull
+    @Indexed(unique = true)
     private String username;
 
     @NonNull
@@ -45,6 +47,8 @@ public class User {
 
     @DBRef
     private List<Post> posts = new ArrayList<>();
+    @DBRef
+    private SessionToken  sessionTokenId ;
 
     private String roles = "User_Role";
 

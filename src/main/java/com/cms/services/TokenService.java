@@ -1,6 +1,7 @@
 package com.cms.services;
 
 import com.cms.models.SessionToken;
+import com.cms.models.User;
 import com.cms.repository.SessionTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,21 +15,27 @@ public class TokenService {
     @Autowired
     private SessionTokenRepository sessionTokenRepository;
 
-    public String generateToken(String username) {
+    public SessionToken generateToken(String username , String id) {
         String token = UUID.randomUUID().toString();
         Instant expiry = Instant.now().plusSeconds(86400); // 1 din ka expiry
 
         // Pehle se token exist hai to use update karo, warna naya save karo
-        Optional<SessionToken> existingToken = sessionTokenRepository.findByUsername(username);
+        Optional<SessionToken> existingToken = sessionTokenRepository.findById(id);
+        System.out.println(username);
+        System.out.println(token);
+        System.out.println(expiry);
         if (existingToken.isPresent()) {
             SessionToken tokenObj = existingToken.get();
             tokenObj = new SessionToken(token, username, expiry);
             sessionTokenRepository.save(tokenObj);
-        } else {
-            sessionTokenRepository.save(new SessionToken(token, username, expiry));
+            return tokenObj;
         }
+        SessionToken tokenObj = new SessionToken(token, username, expiry);
+            sessionTokenRepository.save(tokenObj);
 
-        return token;
+
+
+        return tokenObj;
     }
 
     public Optional<String> validateToken(String token) {

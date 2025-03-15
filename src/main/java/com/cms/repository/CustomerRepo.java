@@ -5,4 +5,5 @@ import java.util.Optional;
 
 public interface CustomerRepo extends MongoRepository<User, String> {
     Optional<User> findByUsername(String username);
+
 }

@@ -17,7 +17,12 @@ public class SessionToken {
         this.expiry = expiry;
     }
 
+    // ✅ Getter Methods
     public String getToken() { return token; }
     public String getUsername() { return username; }
     public Instant getExpiry() { return expiry; }
+
+    // ✅ Fix: Add Setter Methods for updating token and expiry
+    public void setToken(String token) { this.token = token; }
+    public void setExpiry(Instant expiry) { this.expiry = expiry; }
 }
