@@ -1,6 +1,9 @@
 package com.cms.models;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,18 +15,21 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Component
 @Document(collection = "userProfiles")
 @Data
+@JsonIgnoreProperties({"numberOfPosts"})
 public class UserProfile {
     @Id
     private String id;
    @DBRef
+   @JsonBackReference
     private User userId;
 
     @CreatedDate
@@ -40,7 +46,9 @@ public class UserProfile {
 
     private String profilePictureUrl;
 
-    private int numberOfPosts;
+ @DBRef
+ @JsonManagedReference
+ private List<Post> numberOfPosts = new ArrayList<>();
 
     private String numberOfFollowers;
 

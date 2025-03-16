@@ -16,14 +16,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
+import org.bson.types.ObjectId;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Slf4j
+
 @RestController
-@CrossOrigin("*")
 @RequestMapping("/post")
 public class PostController {
     @Autowired
@@ -38,7 +38,6 @@ public class PostController {
     @Autowired
     private PostRepo postRepo;
 
-    // Create post by user
     @PostMapping("/create")
     public ResponseEntity<?> createPost(@RequestBody PostDto postDto) {
         try {
@@ -46,10 +45,9 @@ public class PostController {
             if (authentication == null || !authentication.isAuthenticated()) {
                 return new ResponseEntity<>("User is not authenticated", HttpStatus.UNAUTHORIZED);
             }
-
+            System.out.println("User is authenticated");
             String nameofUser = authentication.getName();
 
-            // Optional.ofNullable hataya, seedha store kiya
             Optional<User> userOptional = customerRepo.findByUsername(nameofUser);
             if (userOptional.isEmpty()) {
                 return new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
@@ -57,13 +55,14 @@ public class PostController {
             User user = userOptional.get();
 
             if (!user.isMakeProfileStatus()) {
+                System.out.println("UserProfile not found, please create it");
                 return new ResponseEntity<>("UserProfile not found, please create it", HttpStatus.BAD_REQUEST);
             }
 
-            // Spring se inject newPost hata diya, manually object create kiya
+            // ✅ Corrected: Use user.getId() instead of user object
             Post newPost = new Post();
             newPost.setPostId(new ObjectId().toString());
-            newPost.setUserId(user);
+            newPost.setUserId(user);  // ✅ Store only the String ID
             newPost.setContent(postDto.getContent());
             postServices.PostSave(newPost);
 
@@ -71,7 +70,7 @@ public class PostController {
             customerRepo.save(user);
 
             UserProfile userProfileByUserId = userProfileRepo.findUserProfileByUserId(user.getId());
-            userProfileByUserId.setNumberOfPosts(postRepo.findByUserId(user.getId()).size());
+            userProfileByUserId.setNumberOfPosts(postRepo.findByUserId(user.getId()));
             userProfileRepo.save(userProfileByUserId);
 
             return new ResponseEntity<>("Created Done", HttpStatus.CREATED);
@@ -115,25 +114,101 @@ public class PostController {
         }
     }
 
-    // Get all posts
+
     @GetMapping("/all")
     public ResponseEntity<List<PostDto>> getAllPosts() {
         try {
             List<Post> postList = postRepo.findAll();
-            List<PostDto> postDTOList = postList.stream().map(post ->
-                    new PostDto(
-                            post.getUserId().getUsername(),
-                            post.getPostId(),
-                            post.getContent(),
-                            post.getComments().size(),
-                            post.getLikes().size(),
-                            post.getUserId().getPosts().size(),
-                            post.getUserId().isMakeProfileStatus()
-                    )
-            ).collect(Collectors.toList());
+            System.out.println("🔥 Post List: " + postList);
+
+            if (postList.isEmpty()) {
+                System.out.println("⚠ No posts found!");
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            List<PostDto> postDTOList = postList.stream().map(post -> {
+                if (post.getUserId() == null) {
+                    System.out.println("⚠ User not found for post: " + post.getPostId());
+                    return null;
+                }
+
+                User user = post.getUserId();  // ✅ Directly get User Object from Post
+
+                PostDto dto = new PostDto(
+                        user.getId(),               // ✅ Extract user ID
+                        post.getPostId(),           // ✅ Post ID
+                        post.getContent(),          // ✅ Post Content
+                        post.getComments().size(),  // ✅ Number of Comments
+                        post.getLikes().size(),     // ✅ Number of Likes
+                        user.getPosts().size(),     // ✅ User's Total Posts
+                        user.isMakeProfileStatus()  // ✅ Profile Status
+                );
+
+                System.out.println("✅ Post DTO Created: " + dto);
+                return dto;
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+
+            System.out.println("🚀 Final DTO List: " + postDTOList);
             return new ResponseEntity<>(postDTOList, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            System.out.println("❌ Error in fetching posts:");
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/user/all")
+    public ResponseEntity<?> getAllUserPosts() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return new ResponseEntity<>("User is not authenticated", HttpStatus.UNAUTHORIZED);
+        }
+        String nameofUser = authentication.getName();
+
+        // ✅ Remove redundant Optional wrapping
+        Optional<User> userOptional = customerRepo.findByUsername(nameofUser);
+              User user1 =userOptional.get();
+              if (user1 == null) {
+                  return new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
+              }
+        try {
+            List<Post> postList = postRepo.findByUserId(user1.getId());
+            System.out.println("🔥 Post List: " + postList);
+
+            if (postList.isEmpty()) {
+                System.out.println("⚠ No posts found!");
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            List<PostDto> postDTOList = postList.stream().map(post -> {
+                if (post.getUserId() == null) {
+                    System.out.println("⚠ User not found for post: " + post.getPostId());
+                    return null;
+                }
+
+                User user = post.getUserId();  // ✅ Directly get User Object from Post
+
+                PostDto dto = new PostDto(
+                        user.getId(),               // ✅ Extract user ID
+                        post.getPostId(),           // ✅ Post ID
+                        post.getContent(),          // ✅ Post Content
+                        post.getComments().size(),  // ✅ Number of Comments
+                        post.getLikes().size(),     // ✅ Number of Likes
+                        user.getPosts().size(),     // ✅ User's Total Posts
+                        user.isMakeProfileStatus()  // ✅ Profile Status
+                );
+
+                System.out.println("✅ Post DTO Created: " + dto);
+                return dto;
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+
+            System.out.println("🚀 Final DTO List: " + postDTOList);
+            return new ResponseEntity<>(postDTOList, HttpStatus.OK);
+        } catch (Exception e) {
+            System.out.println("❌ Error in fetching posts:");
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

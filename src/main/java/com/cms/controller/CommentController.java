@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin("*")
 @RequestMapping("/comment")
 public class CommentController {
     @Autowired
@@ -33,7 +32,6 @@ public class CommentController {
 
     @Transactional
     @PostMapping("/create")
-    // create comment for any post
     public ResponseEntity<?> commentPost(@RequestBody CommentDto comment) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -41,20 +39,24 @@ public class CommentController {
                 return new ResponseEntity<>("User is not authenticated", HttpStatus.UNAUTHORIZED);
             }
             String nameofUser = authentication.getName();
-            Optional<?> userOptional = Optional.ofNullable(customerRepo.findByUsername(nameofUser));
-            if (!userOptional.isPresent()) {
+
+            // ✅ Remove redundant Optional wrapping
+            Optional<User> userOptional = customerRepo.findByUsername(nameofUser);
+            if (userOptional.isEmpty()) {
                 return new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
             }
-            User user = (User) userOptional.get();
+            User user = userOptional.get();
 
-            if (!user.isMakeProfileStatus()){
-                return new ResponseEntity<>("UserProfile not found plz make", HttpStatus.BAD_REQUEST);
+            if (!user.isMakeProfileStatus()) {
+                return new ResponseEntity<>("UserProfile not found, please create one", HttpStatus.BAD_REQUEST);
             }
 
             Optional<Post> byId = postRepo.findById(comment.getPostId());
-            if (!byId.isPresent()) {
+            if (byId.isEmpty()) {
                 return new ResponseEntity<>("Post not found", HttpStatus.BAD_REQUEST);
             }
+
+            Comment newComment = new Comment(); // ✅ Create new comment instance
             newComment.setCommentId(new ObjectId().toString());
             newComment.setPostId(byId.get());
             newComment.setContent(comment.getContent());
@@ -65,12 +67,10 @@ public class CommentController {
             post.getComments().add(newComment);
             postRepo.save(post);
 
-            return new ResponseEntity<>("create comment  Done ", HttpStatus.OK);
+            return new ResponseEntity<>("Comment created successfully", HttpStatus.OK);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-
     }
 
 }

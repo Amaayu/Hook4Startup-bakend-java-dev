@@ -32,7 +32,7 @@ public class  AuthController {
     private SessionTokenRepository sessionTokenRepository;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody Map<String, String> requestData,
+    public ResponseEntity<?> login(@RequestBody Map<String, String> requestData,
                                         @CookieValue(name = "session_token", required = false) String sessionToken,
                                         HttpServletResponse response) {
 
@@ -77,20 +77,20 @@ public class  AuthController {
 
         // ✅ Secure cookie set करना
         ResponseCookie cookie = ResponseCookie.from("session_token", token)
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60) // 7 दिन तक valid
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        return ResponseEntity.ok("Session started successfully");
+        return ResponseEntity.ok(Map.of(
+                "message", "Signup successful!",
+                "user", user
+        ));
     }
 
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody Map<String, String> requestData,
+    public ResponseEntity<?> signup(@RequestBody Map<String, String> requestData,
                                          HttpServletResponse response) {
         // ✅ Fix: JSON request se data le rahe hain
         String username = requestData.get("username");
@@ -117,15 +117,15 @@ public class  AuthController {
 
         // ✅ Secure cookie response send karo
         ResponseCookie cookie = ResponseCookie.from("session_token", newToken.getToken())
-                .httpOnly(true)
-                .secure(true)  // ✅ HTTPS ke liye `true`
-                .sameSite("None")
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60)
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        return ResponseEntity.ok("New session started");
+        return ResponseEntity.ok(Map.of(
+                "message", "Signup successful!",
+                "user", newUser
+        ));
 
     }
 }

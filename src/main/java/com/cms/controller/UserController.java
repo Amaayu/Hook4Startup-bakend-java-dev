@@ -75,24 +75,30 @@ public class UserController {
         }
     }
 
-
     @GetMapping("/users")
     public ResponseEntity<List<UserDto>> getAllUsers() {
         try {
+            System.out.println("Fetching users from service..."); // ✅ Debugging
             List<User> users = userServices.findAllCustomer();
+            System.out.println("Users fetched: " + users);  // ✅ Debugging
+
+            if (users.isEmpty()) {
+                System.out.println("⚠ No users found in DB!");
+            }
+
             List<UserDto> userDtoList = users.stream().map(user ->
                     new UserDto(user.getId(), user.getUsername(), user.getPassword(), user.getEmail())
             ).collect(Collectors.toList());
 
             return new ResponseEntity<>(userDtoList, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(List.of(), HttpStatus.NOT_FOUND); // ✅ Empty List return करें
+            e.printStackTrace();
+            return new ResponseEntity<>(List.of(), HttpStatus.NOT_FOUND);
         }
     }
 
 
 
-    // Create user profile
     @PostMapping("/profile/create")
     public ResponseEntity<?> createUserProfile(@RequestBody UserProfile userProfile) {
         try {
@@ -103,37 +109,31 @@ public class UserController {
             String nameofUser = authentication.getName();
 
             Optional<User> userOptional = customerRepo.findByUsername(nameofUser);
-            if (!userOptional.isPresent()) {
+            if (userOptional.isEmpty()) {
                 return new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
             }
             User user = userOptional.get();
 
-            if (user.isMakeProfileStatus()) {
+            // Check if UserProfile already exists for the user
+            Optional<UserProfile> existingProfile = Optional.ofNullable(userProfileRepo.findUserProfileByUserId(user.getId()));
+            if (existingProfile.isPresent()) {
                 return new ResponseEntity<>("User already has a profile", HttpStatus.BAD_REQUEST);
             }
 
-            // Ensure userProfile has a unique identifier
-            userProfile.setId(new ObjectId().toString());
-
-            // Set user properties
-            user.setUsername(userProfile.getUsername());
-            user.setMakeProfileStatus(true);
-            customerRepo.save(user); // Save the user first
-
-            // Set userProfile properties
-            userProfile.setUserId(user); // Fixed
-            userProfile.setFullName(userProfile.getFullName());
-            userProfile.setBio(userProfile.getBio());
-            userProfile.setProfilePictureUrl(userProfile.getProfilePictureUrl());
-            userProfile.setNumberOfPosts(postRepo.findByUserId(user.getId()).size());
-            userProfile.setNumberOfFollowers("45M");
+            // Create a new profile
+            userProfile.setId(new ObjectId().toString());  // Generate a unique ID
+            userProfile.setUserId(user);  // Store only userId (String), not entire User object
+            userProfile.setNumberOfPosts(null);  // Initially 0 posts
+            userProfile.setNumberOfFollowers("45M"); // Check if these fields are String in DB
             userProfile.setNumberOfFollowing("20");
 
-            // Save the userProfile
+            // Save profile
             userProfileServices.ProfileSave(userProfile);
 
-            // Update user with userProfile ID and save again
-            user.setUserProfileId(userProfile); // Fixed
+            // Update user status
+            user.setMakeProfileStatus(true);
+            user.setUserProfile(userProfile);  // Associate profile with user
+            user.setUserProfileId(userProfile);
             customerRepo.save(user);
 
             return new ResponseEntity<>("User profile created", HttpStatus.OK);

@@ -1,5 +1,9 @@
 package com.cms.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,7 +23,7 @@ import java.util.Objects;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Component
+@JsonIgnoreProperties({"posts"})// ❌ Circular Reference Break
 @Document(collection = "users")
 @Data
 public class User {
@@ -37,6 +41,7 @@ public class User {
     private String email;
 
     @DBRef
+    @JsonManagedReference
     private UserProfile userProfileId;
 
     @CreatedDate
@@ -47,7 +52,9 @@ public class User {
 
     @DBRef
     private List<Post> posts = new ArrayList<>();
+
     @DBRef
+    @JsonBackReference
     private SessionToken  sessionTokenId ;
 
     private String roles = "User_Role";
@@ -76,5 +83,8 @@ public class User {
     @Override
     public String toString() {
         return "User{" + "id=" + id + ", username='" + username + '\'' + '}';
+    }
+
+    public void setUserProfile(UserProfile userProfile) {
     }
 }
