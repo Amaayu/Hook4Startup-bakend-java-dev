@@ -15,22 +15,23 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Component
 @Document(collection = "posts")
 @Data
-
 public class Post {
 
     @Id
     private String postId;
 
     @DBRef
-    @JsonIgnoreProperties({"posts"}) // ❌ User ke andar Posts na aye
+    @JsonIgnoreProperties({"posts"}) // ✅ Prevent Circular Reference
     private User userId;
 
+    private String username;
+    private String profileImageUrl;
+    private String postImageUrl;
 
     @CreatedDate
     private Date creationDate;
@@ -38,20 +39,28 @@ public class Post {
     @LastModifiedDate
     private Date lastModifiedDate;
 
-    /*  private String caption;*/
-
     private String content;
+
     @DBRef
+    @JsonIgnoreProperties({"posts"}) // ✅ Avoid Circular Reference in Likes
     private List<User> likes = new ArrayList<>();
+
     @DBRef
+    @JsonIgnoreProperties({"postId"}) // ✅ Prevent Circular Reference in Comments
     private List<Comment> comments = new ArrayList<>();
 
     private String imageUrl;
 
     @Override
     public String toString() {
-        return "UserPost{" + "id='" + postId + '\'' + ", userId='" + userId + '\'' + ", content='" + content + '\'' + ", creationDate=" + creationDate + ", likes=" + likes + ", comments=" + comments + ", imageUrl='" + imageUrl + '\'' + '}';
-
+        return "Post{" +
+                "postId='" + postId + '\'' +
+                ", userId='" + userId + '\'' +
+                ", content='" + content + '\'' +
+                ", creationDate=" + creationDate +
+                ", likes=" + likes.size() +
+                ", comments=" + comments.size() +
+                ", imageUrl='" + imageUrl + '\'' +
+                '}';
     }
-
 }

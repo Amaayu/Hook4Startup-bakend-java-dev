@@ -57,18 +57,22 @@ public class PostController {
                 System.out.println("UserProfile not found, please create it");
                 return new ResponseEntity<>("UserProfile not found, please create it", HttpStatus.BAD_REQUEST);
             }
-
+            UserProfile userProfileByUserId = userProfileRepo.findUserProfileByUserId(user.getId());
             // ✅ Corrected: Use user.getId() instead of user object
             Post newPost = new Post();
             newPost.setPostId(new ObjectId().toString());
             newPost.setUserId(user);  // ✅ Store only the String ID
             newPost.setContent(postDto.getContent());
+            newPost.setUsername(user.getUsername());
+            newPost.setProfileImageUrl(null);
             postServices.PostSave(newPost);
+            newPost.setProfileImageUrl(userProfileByUserId.getProfilePictureUrl());
+            postServices.postUpdate(newPost);
 
             user.getPosts().add(newPost);
             customerRepo.save(user);
 
-            UserProfile userProfileByUserId = userProfileRepo.findUserProfileByUserId(user.getId());
+
             userProfileByUserId.setNumberOfPosts(postRepo.findByUserId(user.getId()));
             userProfileRepo.save(userProfileByUserId);
 
@@ -113,7 +117,6 @@ public class PostController {
         }
     }
 
-
     @GetMapping("/all")
     public ResponseEntity<List<PostDto>> getAllPosts() {
         try {
@@ -122,37 +125,43 @@ public class PostController {
 
             if (postList.isEmpty()) {
                 System.out.println("⚠ No posts found!");
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                return ResponseEntity.noContent().build();
             }
 
-            List<PostDto> postDTOList = postList.stream().map(post -> {
-                if (post.getUserId() == null) {
-                    System.out.println("⚠ User not found for post: " + post.getPostId());
-                    return null;
-                }
+            List<PostDto> postDTOList = postList.stream()
+                    .map(post -> {
+                        if (post.getUserId() == null) {
+                            System.out.println("⚠ Skipping post as user is not found for postId: " + post.getPostId());
+                            return null;
+                        }
 
-                User user = post.getUserId();  // ✅ Directly get User Object from Post
+                        User user = post.getUserId();  // ✅ Get User Object
 
-                PostDto dto = new PostDto(
-                        user.getId(),               // ✅ Extract user ID
-                        post.getPostId(),           // ✅ Post ID
-                        post.getContent(),          // ✅ Post Content
-                        post.getComments().size(),  // ✅ Number of Comments
-                        post.getLikes().size(),     // ✅ Number of Likes
-                        user.getPosts().size(),     // ✅ User's Total Posts
-                        user.isMakeProfileStatus()  // ✅ Profile Status
-                );
+                        PostDto dto = new PostDto(
+                                user.getId(),                             // ✅ userId
+                                post.getPostId(),                         // ✅ postId
+                                user.getUsername(),                       // ✅ username
+                                post.getContent(),                        // ✅ content
+                                post.getProfileImageUrl() != null ? post.getProfileImageUrl() : "default-profile-url",
+                                post.getImageUrl() != null ? post.getImageUrl() : "default-post-url",
+                                post.getComments() != null ? post.getComments().size() : 0,  // ✅ Number of Comments
+                                post.getLikes() != null ? post.getLikes().size() : 0,        // ✅ Number of Likes
+                                user.getPosts() != null ? user.getPosts().size() : 0,       // ✅ User's Total Posts
+                                user.isMakeProfileStatus()                // ✅ Profile Status
+                        );
 
-                System.out.println("✅ Post DTO Created: " + dto);
-                return dto;
-            }).filter(Objects::nonNull).collect(Collectors.toList());
+                        System.out.println("✅ Post DTO Created: " + dto);
+                        return dto;
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
 
             System.out.println("🚀 Final DTO List: " + postDTOList);
-            return new ResponseEntity<>(postDTOList, HttpStatus.OK);
+            return ResponseEntity.ok(postDTOList);
         } catch (Exception e) {
             System.out.println("❌ Error in fetching posts:");
             e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -188,9 +197,12 @@ public class PostController {
                 User user = post.getUserId();  // ✅ Directly get User Object from Post
 
                 PostDto dto = new PostDto(
-                        user.getId(),               // ✅ Extract user ID
-                        post.getPostId(),           // ✅ Post ID
+                        user.getId(),               // ✅ userId
+                        post.getPostId(),           // ✅ postId
+                        user.getUsername(),          // ✅ Post ID
                         post.getContent(),          // ✅ Post Content
+                        post.getProfileImageUrl(),
+                        post.getPostImageUrl(),
                         post.getComments().size(),  // ✅ Number of Comments
                         post.getLikes().size(),     // ✅ Number of Likes
                         user.getPosts().size(),     // ✅ User's Total Posts

@@ -1,8 +1,6 @@
 package com.hook4startup.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,10 +19,11 @@ import java.util.Objects;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties({"posts"})// ❌ Circular Reference Break
+@JsonIgnoreProperties({"posts", "sessionTokenId"}) // ✅ Avoid Circular Reference
 @Document(collection = "users")
 @Data
 public class User {
+
     @Id
     private String id;
 
@@ -33,13 +32,13 @@ public class User {
     private String username;
 
     @NonNull
-    private String password; // Hashed password store karna best practice hai
+    private String password; // ✅ Plain Text Password (As Requested)
 
     @NonNull
     private String email;
 
     @DBRef
-    @JsonManagedReference
+    @JsonIgnoreProperties({"userId"})
     private UserProfile userProfileId;
 
     @CreatedDate
@@ -49,17 +48,18 @@ public class User {
     private Date lastModifiedDate;
 
     @DBRef
+    @JsonIgnoreProperties({"userId"})
     private List<Post> posts = new ArrayList<>();
 
     @DBRef
-    @JsonBackReference
-    private SessionToken  sessionTokenId ;
+    @JsonIgnoreProperties({"userId"})
+    private SessionToken sessionTokenId;
 
-    private String roles = "User_Role";
+    private String roles = "User_Role"; // ✅ Default Role
 
     private boolean makeProfileStatus;
 
-    public User(String username, String password , String email) {
+    public User(String username, String password, String email) {
         this.username = username;
         this.password = password;
         this.email = email;
@@ -80,9 +80,13 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" + "id=" + id + ", username='" + username + '\'' + '}';
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                '}';
     }
 
     public void setUserProfile(UserProfile userProfile) {
+        this.userProfileId = userProfile;
     }
 }

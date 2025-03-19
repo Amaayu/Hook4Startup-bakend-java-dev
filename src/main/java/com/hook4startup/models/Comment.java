@@ -1,5 +1,6 @@
 package com.hook4startup.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,11 +18,16 @@ import java.util.Date;
 @Document(collection = "comments")
 @Data
 public class Comment {
+
     @Id
     private String commentId;
+
     @DBRef
+    @JsonIgnoreProperties({"posts", "comments", "likes"})
     private User userId;
+
     @DBRef
+    @JsonIgnoreProperties({"comments", "likes"})
     private Post postId;
 
     private String content;
@@ -29,9 +35,13 @@ public class Comment {
     @CreatedDate
     private Date creationDate;
 
-
     @Override
     public String toString() {
-        return "Comment{" + "commentId='" + commentId + '\'' + ", userId='" + userId + '\'' + ", content='" + content + '\'' + ", postId='" + postId + '\'' + ", creationDate=" + creationDate + '}';
+        return "Comment{" +
+                "commentId='" + commentId + '\'' +
+                ", userId='" + userId + '\'' +
+                ", content='" + content + '\'' +
+                ", creationDate=" + creationDate +
+                '}';
     }
 }

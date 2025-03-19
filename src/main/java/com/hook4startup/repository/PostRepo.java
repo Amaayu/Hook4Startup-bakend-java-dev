@@ -10,6 +10,7 @@ public interface PostRepo extends MongoRepository<Post, String> {
 
     // Find posts by user ID
     List<Post> findByUserId(String userId);
+    Post findByusername(String username);
 
 
 }

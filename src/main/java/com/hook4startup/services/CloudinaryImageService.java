@@ -14,15 +14,15 @@ public class CloudinaryImageService {
     @Autowired
     private Cloudinary cloudinary;
 
-    public Map uplode(MultipartFile file){
+    public Map uplodeImage(MultipartFile file){
 
         try {
-            Map data = this.cloudinary.uploader().upload(file.getBytes(),Map.of());
-            return data;
+            return this.cloudinary.uploader().upload(file.getBytes(),Map.of());
         } catch (IOException e) {
             throw new RuntimeException("Image uploading fail !!");
         }
 
     }
+
 
 }
