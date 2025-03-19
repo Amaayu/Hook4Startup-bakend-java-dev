@@ -65,7 +65,7 @@ public class SpringSecurity {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173","https://hook-4-startup.netlify.app")); // ✅ React frontend
+        configuration.setAllowedOrigins(List.of("http://localhost:5173","https://hook-4-startup.netlify.app/")); // ✅ React frontend
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Cookie")); // ✅ "Cookie" header added
         configuration.setExposedHeaders(List.of("Set-Cookie")); // ✅ Allow backend to send "Set-Cookie"
