@@ -117,6 +117,7 @@ public class  AuthController {
 
         // ✅ Secure cookie response send karo
         ResponseCookie cookie = ResponseCookie.from("session_token", newToken.getToken())
+                .httpOnly(false)
                 .secure(true)
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60)
