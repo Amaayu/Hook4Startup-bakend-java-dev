@@ -118,7 +118,6 @@ public class  AuthController {
         // ✅ Secure cookie response send karo
         ResponseCookie cookie = ResponseCookie.from("session_token", newToken.getToken())
                 .sameSite("Lax")
-                .domain("https://hook-4-startup.netlify.app/")
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60)
                 .build();
