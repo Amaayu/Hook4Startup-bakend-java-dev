@@ -75,22 +75,14 @@ public class  AuthController {
             sessionTokenRepository.save(newSession);
             token = newSession.getToken();
         }
-//
-//        // ✅ Secure cookie set करना
-//        ResponseCookie cookie = ResponseCookie.from("session_token", token)
-//                .path("/")
-//                .maxAge(7 * 24 * 60 * 60) // 7 दिन तक valid
-//                .build();
-//        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        // ✅ Secure cookie response send karo
-        Cookie cookie = new Cookie("session_token", token);
-//        cookie.setHttpOnly(false);
-//        cookie.setSecure(true);
-//        cookie.setMaxAge(7 * 24 * 60 * 60); // Expires in 7 days
-        cookie.setPath("/");
-//        //  response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-        response.addCookie(cookie);
+        // ✅ Secure cookie set करना
+        ResponseCookie cookie = ResponseCookie.from("session_token", token)
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60) // 7 दिन तक valid
+                .build();
+                 response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
         return ResponseEntity.ok(Map.of(
                 "message", "Signup successful!",
                 "user", user
@@ -125,13 +117,12 @@ public class  AuthController {
 
 
         // ✅ Secure cookie response send karo
-        Cookie cookie = new Cookie("session_token", newToken.getToken());
-//               cookie.setHttpOnly(false);
-//                cookie.setSecure(true);
-//                cookie.setMaxAge(7 * 24 * 60 * 60); // Expires in 7 days
-                cookie.setPath("/");
-      //  response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-                response.addCookie(cookie);
+
+        ResponseCookie cookie = ResponseCookie.from("session_token", newToken.getToken())
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60) // 7 दिन तक valid
+                .build();
+                 response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         return ResponseEntity.ok(Map.of(
                 "message", "Signup successful!",
                 "user", newUser
