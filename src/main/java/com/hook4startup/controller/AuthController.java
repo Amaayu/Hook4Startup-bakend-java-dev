@@ -85,11 +85,11 @@ public class  AuthController {
 
         // ✅ Secure cookie response send karo
         Cookie cookie = new Cookie("session_token", token);
-        cookie.setHttpOnly(false);
-        cookie.setSecure(true);
-        cookie.setMaxAge(7 * 24 * 60 * 60); // Expires in 7 days
+//        cookie.setHttpOnly(false);
+//        cookie.setSecure(true);
+//        cookie.setMaxAge(7 * 24 * 60 * 60); // Expires in 7 days
         cookie.setPath("/");
-        //  response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+//        //  response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         response.addCookie(cookie);
         return ResponseEntity.ok(Map.of(
                 "message", "Signup successful!",
@@ -126,9 +126,9 @@ public class  AuthController {
 
         // ✅ Secure cookie response send karo
         Cookie cookie = new Cookie("session_token", newToken.getToken());
-               cookie.setHttpOnly(false);
-                cookie.setSecure(true);
-                cookie.setMaxAge(7 * 24 * 60 * 60); // Expires in 7 days
+//               cookie.setHttpOnly(false);
+//                cookie.setSecure(true);
+//                cookie.setMaxAge(7 * 24 * 60 * 60); // Expires in 7 days
                 cookie.setPath("/");
       //  response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
                 response.addCookie(cookie);
