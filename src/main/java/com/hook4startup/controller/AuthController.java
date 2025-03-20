@@ -5,6 +5,7 @@ import com.hook4startup.models.User;
 import com.hook4startup.repository.CustomerRepo;
 import com.hook4startup.repository.SessionTokenRepository;
 import com.hook4startup.services.TokenService;
+import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -74,14 +75,23 @@ public class  AuthController {
             sessionTokenRepository.save(newSession);
             token = newSession.getToken();
         }
+//
+//        // ✅ Secure cookie set करना
+//        ResponseCookie cookie = ResponseCookie.from("session_token", token)
+//                .path("/")
+//                .maxAge(7 * 24 * 60 * 60) // 7 दिन तक valid
+//                .build();
+//        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        // ✅ Secure cookie set करना
-        ResponseCookie cookie = ResponseCookie.from("session_token", token)
-                .path("/")
-                .maxAge(7 * 24 * 60 * 60) // 7 दिन तक valid
-                .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
+        // ✅ Secure cookie response send karo
+        Cookie cookie = new Cookie("session_token", token);
+        cookie.setHttpOnly(false);
+        cookie.setSecure(false);
+        cookie.setMaxAge(7 * 24 * 60 * 60); // Expires in 7 days
+        cookie.setPath("/");
+        cookie.setDomain("https://hook-4-startup.netlify.app/");
+        //  response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        response.addCookie(cookie);
         return ResponseEntity.ok(Map.of(
                 "message", "Signup successful!",
                 "user", user
@@ -116,16 +126,14 @@ public class  AuthController {
 
 
         // ✅ Secure cookie response send karo
-        ResponseCookie cookie = ResponseCookie.from("session_token", newToken.getToken())
-                .httpOnly(false)
-                .secure(true)
-                .sameSite("Lax")
-                .domain("https://hook-4-startup.netlify.app/")
-                .path("/")
-                .maxAge(7 * 24 * 60 * 60)
-                .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
+        Cookie cookie = new Cookie("session_token", newToken.getToken());
+               cookie.setHttpOnly(false);
+                cookie.setSecure(false);
+                cookie.setMaxAge(7 * 24 * 60 * 60); // Expires in 7 days
+                cookie.setPath("/");
+                cookie.setDomain("https://hook-4-startup.netlify.app/");
+      //  response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+                response.addCookie(cookie);
         return ResponseEntity.ok(Map.of(
                 "message", "Signup successful!",
                 "user", newUser
