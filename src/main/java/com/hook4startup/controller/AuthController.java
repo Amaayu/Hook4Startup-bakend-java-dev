@@ -89,7 +89,6 @@ public class  AuthController {
         cookie.setSecure(false);
         cookie.setMaxAge(7 * 24 * 60 * 60); // Expires in 7 days
         cookie.setPath("/");
-        cookie.setDomain("https://hook-4-startup.netlify.app/");
         //  response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         response.addCookie(cookie);
         return ResponseEntity.ok(Map.of(
@@ -131,7 +130,6 @@ public class  AuthController {
                 cookie.setSecure(false);
                 cookie.setMaxAge(7 * 24 * 60 * 60); // Expires in 7 days
                 cookie.setPath("/");
-                cookie.setDomain("https://hook-4-startup.netlify.app/");
       //  response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
                 response.addCookie(cookie);
         return ResponseEntity.ok(Map.of(
