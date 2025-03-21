@@ -61,7 +61,7 @@ public class SpringSecurity {
 
         return http.build();
     }
-// https://hook4startup.netlify.app", "http://localhost:5173
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
