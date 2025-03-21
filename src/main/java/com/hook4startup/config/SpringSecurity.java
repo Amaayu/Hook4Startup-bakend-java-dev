@@ -62,21 +62,54 @@ public class SpringSecurity {
         return http.build();
     }
 
+//    @Bean
+//    public CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.setAllowedOrigins(List.of("http://localhost:5173/","http://localhost:3000","https://hook-4-startup.onrender.com")); // ✅ React frontend
+//        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+//        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Cookie")); // ✅ "Cookie" header added
+//        configuration.setExposedHeaders(List.of("Set-Cookie")); // ✅ Allow backend to send "Set-Cookie"
+//        configuration.setAllowCredentials(true); // ✅ Cookies allow karo
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//        return source;
+//    }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173/","http://localhost:3000","https://hook-4-startup.onrender.com")); // ✅ React frontend
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Cookie")); // ✅ "Cookie" header added
-        configuration.setExposedHeaders(List.of("Set-Cookie")); // ✅ Allow backend to send "Set-Cookie"
-        configuration.setAllowCredentials(true); // ✅ Cookies allow karo
 
+        // ✅ Allowed origins (NO trailing slash)
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "http://localhost:3000",
+                "https://hook-4-startup.onrender.com"
+        ));
+
+        // ✅ Allowed methods
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        // ✅ Allowed headers (Added "Origin")
+        configuration.setAllowedHeaders(List.of(
+                "Authorization",
+                "Content-Type",
+                "Cookie",
+                "Origin"  // ✅ Important for CORS
+        ));
+
+        // ✅ Expose headers for cookies
+        configuration.setExposedHeaders(List.of("Set-Cookie"));
+
+        // ✅ Allow credentials to enable cookies
+        configuration.setAllowCredentials(true);
+
+        // ✅ Register CORS with URL pattern
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/api/**", configuration); // Ya "/api/**" if API only
+
         return source;
     }
-
-
 
 
 }
