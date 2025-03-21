@@ -50,8 +50,8 @@ public class SpringSecurity {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ CORS ko enable karna
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll() // ✅ Public routes
-                        .requestMatchers("/user/**", "/post/**", "/comment/**","/like/**","/cloudinary/**").authenticated() // ✅ Protected routes
+                        .requestMatchers("/api/auth/**").permitAll() // ✅ Public routes
+                        .requestMatchers("/api/user/**", "/api/post/**", "/api/comment/**","/api/like/**","/api/cloudinary/**").authenticated() // ✅ Protected routes
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -65,7 +65,7 @@ public class SpringSecurity {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173/","https://hook-4-startup.netlify.app/")); // ✅ React frontend
+        configuration.setAllowedOrigins(List.of("http://localhost:5173/","http://localhost:3000","https://hook-4-startup.onrender.com/")); // ✅ React frontend
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Cookie")); // ✅ "Cookie" header added
         configuration.setExposedHeaders(List.of("Set-Cookie")); // ✅ Allow backend to send "Set-Cookie"

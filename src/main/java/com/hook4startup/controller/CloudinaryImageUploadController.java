@@ -17,7 +17,7 @@ import java.util.Map;
 
 @RestController
 @CrossOrigin("*")
-@RequestMapping("/cloudinary")
+@RequestMapping("/api/cloudinary")
 public class CloudinaryImageUploadController {
     @Autowired
     private CloudinaryImageService cloudinaryImageService;
