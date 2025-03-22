@@ -50,8 +50,8 @@ public class SpringSecurity {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ CORS ko enable karna
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // ✅ Public routes
-                        .requestMatchers("/api/user/**", "/api/post/**", "/api/comment/**","/api/like/**","/api/cloudinary/**").authenticated() // ✅ Protected routes
+                        .requestMatchers("/auth/**","/", "/static/**", "/index.html", "/vite.ico", "/manifest.json").permitAll()// ✅ Public routes
+                        .requestMatchers("/user/**", "/post/**", "/comment/**","/like/**","/cloudinary/**").authenticated() // ✅ Protected routes
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -62,55 +62,20 @@ public class SpringSecurity {
         return http.build();
     }
 
-//    @Bean
-//    public CorsConfigurationSource corsConfigurationSource() {
-//        CorsConfiguration configuration = new CorsConfiguration();
-//        configuration.setAllowedOrigins(List.of("http://localhost:5173/","http://localhost:3000","https://hook-4-startup.onrender.com")); // ✅ React frontend
-//        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-//        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Cookie")); // ✅ "Cookie" header added
-//        configuration.setExposedHeaders(List.of("Set-Cookie")); // ✅ Allow backend to send "Set-Cookie"
-//        configuration.setAllowCredentials(true); // ✅ Cookies allow karo
-//
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", configuration);
-//        return source;
-//    }
-
-    @Bean
+   @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        // ✅ Allowed origins (NO trailing slash)
-        configuration.setAllowedOrigins(List.of(
-                "http://localhost:5173",
-                "http://localhost:3000",
-                "https://hook-4-startup.onrender.com"
-                ,"http://nginx"
-        ));
-
-        // ✅ Allowed methods
+        configuration.setAllowedOrigins(List.of("http://localhost:5173/","http://localhost:3000","http://localhost:4173/")); // ✅ React frontend
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Cookie")); // ✅ "Cookie" header added
+        configuration.setExposedHeaders(List.of("Set-Cookie")); // ✅ Allow backend to send "Set-Cookie"
+        configuration.setAllowCredentials(true); // ✅ Cookies allow karo
 
-        // ✅ Allowed headers (Added "Origin")
-        configuration.setAllowedHeaders(List.of(
-                "Authorization",
-                "Content-Type",
-                "Cookie",
-                "Origin"  // ✅ Important for CORS
-        ));
-
-        // ✅ Expose headers for cookies
-        configuration.setExposedHeaders(List.of("Set-Cookie"));
-
-        // ✅ Allow credentials to enable cookies
-        configuration.setAllowCredentials(true);
-
-        // ✅ Register CORS with URL pattern
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", configuration); // Ya "/api/**" if API only
-
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
 
 
 }

@@ -20,7 +20,7 @@ import java.util.Optional;
 
 
 @RestController
-@RequestMapping("/api/auth") // ✅ Public APIs
+@RequestMapping("/auth") // ✅ Public APIs
 public class  AuthController {
 
     @Autowired

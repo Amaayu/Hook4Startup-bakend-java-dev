@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/comment")
+@RequestMapping("/comment")
 public class CommentController {
     @Autowired
     CustomerRepo customerRepo;

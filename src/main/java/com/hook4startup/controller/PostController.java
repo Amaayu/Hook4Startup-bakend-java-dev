@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 
 @RestController
-@RequestMapping("/api/post")
+@RequestMapping("/post")
 public class PostController {
     @Autowired
     private UserProfileRepo userProfileRepo;

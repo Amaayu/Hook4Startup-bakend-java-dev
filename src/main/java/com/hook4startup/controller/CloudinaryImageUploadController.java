@@ -16,8 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Map;
 
 @RestController
-@CrossOrigin("*")
-@RequestMapping("/api/cloudinary")
+@RequestMapping("/cloudinary")
 public class CloudinaryImageUploadController {
     @Autowired
     private CloudinaryImageService cloudinaryImageService;
