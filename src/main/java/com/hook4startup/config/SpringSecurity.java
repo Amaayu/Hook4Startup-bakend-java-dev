@@ -85,6 +85,7 @@ public class SpringSecurity {
                 "http://localhost:5173",
                 "http://localhost:3000",
                 "https://hook-4-startup.onrender.com"
+                ,"http://nginx"
         ));
 
         // ✅ Allowed methods
